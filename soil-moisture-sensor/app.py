@@ -1,6 +1,7 @@
 """A relay for sending sensor data fom CounterFit to an Azure Iot Hub"""
 
 import os
+import sys
 import time
 import json
 from counterfit_connection import CounterFitConnection
@@ -17,7 +18,7 @@ conn_str = os.getenv('SENSOR_CONN_STR')
 
 if conn_str is None:
     print("Connection string could not be found")
-    exit(-1)
+    sys.exit(-1)
 
 device_client = IoTHubDeviceClient.create_from_connection_string(conn_str)
 
