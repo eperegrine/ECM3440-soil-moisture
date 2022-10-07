@@ -36,3 +36,13 @@ pip install -r requirements.txt
 ### Linting
 
 The app is linted automatically by GH actions. The linting is done by pylint and can be run with: `pylint $(git ls-files '*.py')`
+
+### Counter Fit
+
+The sensor extracts data from counter fit, you can start this using
+
+```bash
+python3 -m CounterFit
+```
+
+Then in counter fit you can setup the sensor
