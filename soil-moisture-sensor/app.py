@@ -1,9 +1,12 @@
+"""A relay for sending sensor data fom CounterFit to an Azure Iot Hub"""
+
 import os
-from counterfit_connection import CounterFitConnection
+import sys
 import time
+import json
+from counterfit_connection import CounterFitConnection
 from counterfit_shims_grove.adc import ADC
 from counterfit_shims_grove.grove_relay import GroveRelay
-import json
 from azure.iot.device import IoTHubDeviceClient, Message, MethodResponse
 
 CounterFitConnection.init('127.0.0.1', 8080)
@@ -15,7 +18,7 @@ conn_str = os.getenv('SENSOR_CONN_STR')
 
 if conn_str is None:
     print("Connection string could not be found")
-    exit(-1)
+    sys.exit(-1)
 
 device_client = IoTHubDeviceClient.create_from_connection_string(conn_str)
 
@@ -25,6 +28,7 @@ print('Connected')
 
 
 def handle_method_request(request):
+    """Handle a method request from the iot hub"""
     print("Direct method received - ", request.name)
 
     if request.name == "relay_on":
