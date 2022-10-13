@@ -17,7 +17,7 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
       run: |
-        cd soil-moisture-sensor
+        cd ${{matrix.project}}
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install pylint
