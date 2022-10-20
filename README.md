@@ -46,3 +46,7 @@ python3 -m CounterFit
 ```
 
 Then in counter fit you can setup the sensor
+
+### How to deploy k8s deployment
+
+Read this link - <https://learn.microsoft.com/en-us/azure/aks/learn/quick-kubernetes-deploy-cli>
