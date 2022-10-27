@@ -6,6 +6,7 @@ import time
 from datetime import datetime
 import threading
 from dash import Dash, html, dcc
+from dash.dependencies import Input, Output
 from azure.eventhub import EventHubConsumerClient, EventData
 from dotenv import load_dotenv
 import plotly.express as px
@@ -23,21 +24,26 @@ conn_str = f"Endpoint={IOT_HUB_EVENT_ENDPOINT}/;" + \
 f"EntityPath={HUB_NAME};" + \
 f"SharedAccessKeyName=service;SharedAccessKey={SAS_KEY}"
 
+moisture_data = []
+DF = pd.DataFrame({'soil_moisture':[50],'time':[1]})
+
 def prepare_app():
     """Start the app"""
     dashboard = Dash(__name__)
 
-    data_frame = pd.DataFrame({'soil_moisture':moisture_data,'time':range(len(moisture_data))})
-
-    fig = px.bar(data_frame, x='time', y='soil_moisture')
+    fig = px.bar(DF, x='time', y='soil_moisture')
 
     dashboard.layout = html.Div(children=[
         html.H1(children='A simple chart'),
-        dcc.Graph(id='soil-moisture-graph',figure=fig)
+        dcc.Graph(id='soil-moisture-graph',figure=fig),
+        dcc.Interval(
+            id='interval-component',
+            interval=2*1000, # in milliseconds
+            n_intervals=0
+        )
     ])
     return dashboard
 
-moisture_data = []
 
 def receive_events_from_iothub():
     """
@@ -68,11 +74,23 @@ def receive_events_from_iothub():
             on_event=on_event,
             starting_position="-1",  # "-1" is from the beginning of the partition.
         )
-       
+
 
 def start_server():
     """Start the web app"""
     app = prepare_app()
+
+
+    @app.callback(Output('soil-moisture-graph', 'figure'),
+              Input('interval-component', 'n_intervals'))
+    def update_graph_live(n):
+        print("UPDATE GRAPH")
+        values = [m for m in moisture_data]
+        time_values = [count for count, _ in enumerate(moisture_data)]
+        df = pd.DataFrame({ 'soil_moisture': values, 'time':time_values})
+        fig = px.bar(df,  y='soil_moisture',  x='time', barmode="group")
+        return fig
+
     app.run_server(debug=False,host='0.0.0.0',port=5001)
 
 if __name__ == '__main__':
@@ -83,6 +101,4 @@ if __name__ == '__main__':
     server_thread.start()
 
     print("Hello World")
-    while True:
-        time.sleep(1)
-        print(moisture_data)
+    input()
