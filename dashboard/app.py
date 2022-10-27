@@ -2,7 +2,9 @@
 
 import logging
 import os
+import time
 from datetime import datetime
+import threading
 from dash import Dash, html, dcc
 from azure.eventhub import EventHubConsumerClient, EventData
 from dotenv import load_dotenv
@@ -25,7 +27,7 @@ def prepare_app():
     """Start the app"""
     dashboard = Dash(__name__)
 
-    data_frame = pd.DataFrame({'soil_moisture':[12.0, 14.6, 13.2, 14.4],'time':[0,1,2,3]})
+    data_frame = pd.DataFrame({'soil_moisture':moisture_data,'time':range(len(moisture_data))})
 
     fig = px.bar(data_frame, x='time', y='soil_moisture')
 
@@ -35,24 +37,28 @@ def prepare_app():
     ])
     return dashboard
 
-if __name__ == '__main__':
-    app = prepare_app()
+moisture_data = []
 
-    #app.run_server(debug=False,host='0.0.0.0',port=5001)
-
+def receive_events_from_iothub():
+    """
+    connect to and receive events from the eventhub
+    """
     client = EventHubConsumerClient.from_connection_string(conn_str, consumer_group=CONSUMER_GROUP)
 
-    logger = logging.getLogger("azure.eventhub")
+    logging.getLogger("azure.eventhub")
     logging.basicConfig(level=logging.INFO)
 
     def on_event(partition_context, event: EventData):
         """Handle messages from the event client"""
         json_body = event.body_as_json()
         if 'soil_moisture' in json_body:
+            moisture = json_body['soil_moisture']
+            enqueued_at = event.enqueued_time
+            moisture_data.append(moisture)
             print("-" * 20)
-            now = datetime.now(event.enqueued_time.tzinfo)
-            print(f"{event.enqueued_time} - in past? {event.enqueued_time < now}")
-            print(f"SOIL MOISTURE: {json_body['soil_moisture']}")
+            now = datetime.now(enqueued_at.tzinfo)
+            print(f"{enqueued_at} - in past? {enqueued_at < now}")
+            print(f"SOIL MOISTURE: {moisture}")
             print("-" * 20)
 
         partition_context.update_checkpoint(event)
@@ -62,5 +68,21 @@ if __name__ == '__main__':
             on_event=on_event,
             starting_position="-1",  # "-1" is from the beginning of the partition.
         )
+       
+
+def start_server():
+    """Start the web app"""
+    app = prepare_app()
+    app.run_server(debug=False,host='0.0.0.0',port=5001)
+
+if __name__ == '__main__':
+
+    event_thread = threading.Thread(target=receive_events_from_iothub, daemon=True)
+    server_thread = threading.Thread(target=start_server, daemon=True)
+    event_thread.start()
+    server_thread.start()
 
     print("Hello World")
+    while True:
+        time.sleep(1)
+        print(moisture_data)
