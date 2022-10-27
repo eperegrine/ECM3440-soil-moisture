@@ -47,6 +47,11 @@ python3 -m CounterFit
 
 Then in counter fit you can setup the sensor
 
+
+### How to deploy k8s deployment
+
+Read this link - <https://learn.microsoft.com/en-us/azure/aks/learn/quick-kubernetes-deploy-cli>
+
 ### How to build and run the dashboard container
 
 Pre-requisite:  You need to know the name of the docker hub repo where this image should be pushed to or ask a team member for this information.  Do a ``` docker login ``` to login to docker.
