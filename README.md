@@ -59,6 +59,10 @@ az iot hub device-identity create --device-id soil-moisture-sensor --hub-name <h
 
 Or to add a new device replace `soil-moisture-sensor` with the device name
 
+The dashboard connects to the iot hubs built in event hub to receive messages from the sensor, you can  use this guide to get the connection details https://github.com/Azure-Samples/azure-iot-samples-python/blob/master/iot-hub/Quickstarts/read-d2c-messages/Readme.md
+
+And put the `SAS_KEY` in a `.env` file in the dashboard folder (or set it up as an environment variable)
+
 ## Startup
 
 The following will help you setup the sensor to send data to the IoT Hub and have the dashboard receive it locally
