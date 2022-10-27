@@ -2,7 +2,6 @@
 
 import logging
 import os
-from time import time
 from datetime import datetime
 from dash import Dash, html, dcc
 from azure.eventhub import EventHubConsumerClient, EventData
@@ -18,7 +17,9 @@ IOT_HUB_EVENT_ENDPOINT="sb://iothub-ns-ecm3440-eg-21754765-c77f1ada98.servicebus
 DEVICE_ID="soil-moisture-sensor"
 SAS_KEY=os.getenv("SAS_KEY")
 
-conn_str = f"Endpoint={IOT_HUB_EVENT_ENDPOINT}/;EntityPath={HUB_NAME};SharedAccessKeyName=service;SharedAccessKey={SAS_KEY}"
+conn_str = f"Endpoint={IOT_HUB_EVENT_ENDPOINT}/;" + \
+f"EntityPath={HUB_NAME};" + \
+f"SharedAccessKeyName=service;SharedAccessKey={SAS_KEY}"
 
 def prepare_app():
     """Start the app"""
@@ -46,11 +47,11 @@ if __name__ == '__main__':
 
     def on_event(partition_context, event: EventData):
         """Handle messages from the event client"""
-        logger.info(f"Received event from partition {partition_context.partition_id}")
         json_body = event.body_as_json()
         if 'soil_moisture' in json_body:
             print("-" * 20)
-            print(f"{event.enqueued_time} - in past? {event.enqueued_time < datetime.now(event.enqueued_time.tzinfo)}")
+            now = datetime.now(event.enqueued_time.tzinfo)
+            print(f"{event.enqueued_time} - in past? {event.enqueued_time < now}")
             print(f"SOIL MOISTURE: {json_body['soil_moisture']}")
             print("-" * 20)
 
