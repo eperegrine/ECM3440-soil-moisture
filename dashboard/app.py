@@ -2,7 +2,6 @@
 
 import logging
 import os
-import time
 from datetime import datetime
 import threading
 from dash import Dash, html, dcc
@@ -83,12 +82,10 @@ def start_server():
 
     @app.callback(Output('soil-moisture-graph', 'figure'),
               Input('interval-component', 'n_intervals'))
-    def update_graph_live(n):
-        print("UPDATE GRAPH")
-        values = [m for m in moisture_data]
+    def update_graph_live(_):
         time_values = [count for count, _ in enumerate(moisture_data)]
-        df = pd.DataFrame({ 'soil_moisture': values, 'time':time_values})
-        fig = px.bar(df,  y='soil_moisture',  x='time', barmode="group")
+        data_frame = pd.DataFrame({ 'soil_moisture': moisture_data, 'time':time_values})
+        fig = px.bar(data_frame,  y='soil_moisture',  x='time', barmode="group")
         return fig
 
     app.run_server(debug=False,host='0.0.0.0',port=5001)
