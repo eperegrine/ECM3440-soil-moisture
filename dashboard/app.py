@@ -1,24 +1,46 @@
 """ The main dashboard to view the sensor """
 
-from dash import Dash, html, dcc
-import plotly.express as px
-import pandas as pd
+import os
+import threading
+from dotenv import load_dotenv
+from modules.server import start_server
+from modules.iothub import receive_events_from_iothub
 
-def prepare_app():
-    """Start the app"""
-    dashboard = Dash(__name__)
+load_dotenv()
 
-    data_frame = pd.DataFrame({'soil_moisture':[12.0, 14.6, 13.2, 14.4],'time':[0,1,2,3]})
+HUB_NAME="ecm3440-egp-hub"
+CONSUMER_GROUP="$Default"
+IOT_HUB_EVENT_ENDPOINT="sb://iothub-ns-ecm3440-eg-21754765-c77f1ada98.servicebus.windows.net/"
+DEVICE_ID="soil-moisture-sensor"
+SAS_KEY=os.getenv("SAS_KEY")
 
-    fig = px.bar(data_frame, x='time', y='soil_moisture')
+conn_str = f"Endpoint={IOT_HUB_EVENT_ENDPOINT}/;" + \
+f"EntityPath={HUB_NAME};" + \
+f"SharedAccessKeyName=service;SharedAccessKey={SAS_KEY}"
 
-    dashboard.layout = html.Div(children=[
-        html.H1(children='A simple chart'),
-        dcc.Graph(id='soil-moisture-graph',figure=fig)
-    ])
-    return dashboard
+#This should be switched to a redis connection, but for simplicity a global
+#variable works
+moisture_data = []
 
 if __name__ == '__main__':
-    app = prepare_app()
 
-    app.run_server(debug=False,host='0.0.0.0',port=8080)
+    def save_moisture(moisture):
+        """A method the thread can use to save a moisture update"""
+        print("saving moisture")
+        moisture_data.append(moisture)
+
+    def get_moisture() -> list[int]:
+        """A method the thread can use to get the moisture"""
+        print("getting moisture")
+        return moisture_data
+
+    event_thread = threading.Thread(
+        target=receive_events_from_iothub,
+        args=[conn_str, CONSUMER_GROUP, save_moisture],
+        daemon=True)
+    server_thread = threading.Thread(target=start_server, args=[get_moisture], daemon=True)
+    event_thread.start()
+    server_thread.start()
+
+    print("Hello World")
+    input()

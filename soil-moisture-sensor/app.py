@@ -9,7 +9,8 @@ from counterfit_shims_grove.adc import ADC
 from counterfit_shims_grove.grove_relay import GroveRelay
 from azure.iot.device import IoTHubDeviceClient, Message, MethodResponse
 
-CounterFitConnection.init('127.0.0.1', 8080)
+port = int(os.getenv("SOIL_MOISTURE_PORT", "3000"))
+CounterFitConnection.init('127.0.0.1', port)
 
 adc = ADC()
 relay = GroveRelay(5)
