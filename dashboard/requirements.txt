@@ -4,3 +4,4 @@ azure-servicebus
 azure-iot-hub
 azure-eventhub
 python-dotenv
+pytest
