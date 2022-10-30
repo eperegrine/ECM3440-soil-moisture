@@ -25,5 +25,6 @@ jobs:
     - name: Analysing the code with pylint
       run: |
         pylint $(git ls-files '${{matrix.project}}/*.py')
-    - name: |
+    - name:
+      run: |
         pytest
