@@ -3,4 +3,3 @@ CounterFit
 counterfit-connection
 counterfit-shims-grove
 pylint
-pytest
