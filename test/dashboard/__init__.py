@@ -1,7 +1,7 @@
 """Dashboard Unit Tests"""
 
 import unittest
-from .IotHubTests import *
+from .iot_hub import *
 
 if __name__ == "__main__":
     unittest.main()
