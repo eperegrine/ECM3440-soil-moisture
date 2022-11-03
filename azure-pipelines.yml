@@ -1,0 +1,50 @@
+# Docker
+# Build a Docker image
+# https://docs.microsoft.com/azure/devops/pipelines/languages/docker
+
+trigger:
+- main
+- task/Dev-Ops-Pipeline
+
+resources:
+- repo: self
+
+variables:
+  tag: '$(Build.BuildId)'
+  pythonVersion: 3.11
+
+steps:
+- task: UsePythonVersion@0
+  displayName: Use Python $(pythonVersion)
+  inputs:
+    versionSpec: $(pythonVersion)
+
+- task: Docker@2
+  displayName: Build an image
+  inputs:
+    repository: 'jackplowman/python-dashboard'
+    command: 'build'
+    Dockerfile: 'Dockerfile'
+    tags: |
+      $(tag)
+      latest
+
+- task: Docker@1
+  displayName: 'Push the Docker image to Dockerhub'
+  inputs:
+    containerregistrytype: 'Container Registry'
+    dockerRegistryEndpoint: 'Docker Hub'
+    command: 'Push an image'
+    imageName: 'jackplowman/python-dashboard:latest'
+  condition: succeeded() 
+
+- task: GitHubRelease@1
+  inputs:
+    gitHubConnection: 'JackPlowman'
+    repositoryName: 'eperegrine/ECM3440-soil-moisture'
+    action: 'create'
+    target: '$(Build.SourceVersion)'
+    tagSource: 'gitTag'
+    releaseNotesSource: 'inline'
+    changeLogCompareToRelease: 'lastFullRelease'
+    changeLogType: 'commitBased'
