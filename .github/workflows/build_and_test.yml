@@ -28,4 +28,6 @@ jobs:
     - name: Running tests with unittest
       run: |
         cd ..
+        pwd
+        ls -la
         python -m unittest test.${{matrix.project}}
