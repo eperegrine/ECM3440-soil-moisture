@@ -27,6 +27,5 @@ jobs:
         pylint $(git ls-files '${{matrix.project}}/*.py')
     - name: Running tests with unittest
       run: |
-        pwd
-        ls -la
-        python -m unittest test.${{matrix.project}}
+        cd test
+        python -m unittest ${{matrix.project}}
