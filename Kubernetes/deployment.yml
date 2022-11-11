@@ -7,8 +7,8 @@ spec:
     app: python-dashboard
   ports:
   - protocol: "TCP"
-    port: 8080
-    targetPort: 8080
+    port: 5001
+    targetPort: 5001
   type: LoadBalancer
 
 ---
@@ -28,7 +28,7 @@ spec:
     spec:
       containers:
       - name: python-dashboard
-        image: REPO_NAME/python-dashboard:latest
-        imagePullPolicy: Never
+        image: jackplowman/python-dashboard:latest
+        imagePullPolicy: Always
         ports:
-        - containerPort: 8080
+        - containerPort: 5001

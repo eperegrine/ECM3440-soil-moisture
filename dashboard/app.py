@@ -41,6 +41,5 @@ if __name__ == '__main__':
     server_thread = threading.Thread(target=start_server, args=[get_moisture], daemon=True)
     event_thread.start()
     server_thread.start()
-
-    print("Hello World")
-    input()
+    while True:
+        pass

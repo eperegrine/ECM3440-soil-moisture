@@ -10,10 +10,12 @@ resources:
 - repo: self
 
 variables:
-  tag: '$(Build.BuildId)'
+  tag: '$(Build.SourceVersion)'
   pythonVersion: 3.11
 
+
 steps:
+
 - task: UsePythonVersion@0
   displayName: Use Python $(pythonVersion)
   inputs:
@@ -22,29 +24,19 @@ steps:
 - task: Docker@2
   displayName: Build an image
   inputs:
-    repository: 'jackplowman/python-dashboard'
-    command: 'build'
+    containerRegistry: 'docker-hub'
+    repository: '$(REPOSITORY)/python-dashboard'
+    command: 'buildAndPush'
     Dockerfile: 'Dockerfile'
-    tags: |
-      $(tag)
-      latest
+    tags: 'latest'
+    
 
-- task: Docker@1
-  displayName: 'Push the Docker image to Dockerhub'
+- task: KubernetesManifest@0
   inputs:
-    containerregistrytype: 'Container Registry'
-    dockerRegistryEndpoint: 'Docker Hub'
-    command: 'Push an image'
-    imageName: 'jackplowman/python-dashboard:latest'
-  condition: succeeded() 
-
-- task: GitHubRelease@1
-  inputs:
-    gitHubConnection: 'JackPlowman'
-    repositoryName: 'eperegrine/ECM3440-soil-moisture'
-    action: 'create'
-    target: '$(Build.SourceVersion)'
-    tagSource: 'gitTag'
-    releaseNotesSource: 'inline'
-    changeLogCompareToRelease: 'lastFullRelease'
-    changeLogType: 'commitBased'
+    action: 'deploy'
+    kubernetesServiceConnection: 'kube-connection'
+    namespace: 'default'
+    manifests: 'Kubernetes/deployment.yml'
+    containers: '$(REPOSITORY)/python-dashboard:latest'
+    imagePullSecrets: 'docker-hub'
+    rolloutStatusTimeout: '30'
