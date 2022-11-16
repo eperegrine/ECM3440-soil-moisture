@@ -59,6 +59,7 @@ steps:
     repositoryName: 'eperegrine/ECM3440-soil-moisture'
     action: 'create'
     target: '$(Build.SourceVersion)'
-    tagSource: 'gitTag'
+    tagSource: 'userSpecifiedTag'
+    tag: 'v1.0.0'
     changeLogCompareToRelease: 'lastFullRelease'
     changeLogType: 'commitBased'
