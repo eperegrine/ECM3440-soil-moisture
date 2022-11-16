@@ -21,6 +21,16 @@ steps:
   inputs:
     versionSpec: $(pythonVersion)
 
+- task: Bash@3
+  inputs:
+    targetType: 'inline'
+    script: |
+      python -m pip install --upgrade pip
+      pip install -r dashboard/requirements.txt
+      python -m dashboard.test
+      pip install -r soil_moisture_sensor/requirements.txt
+      python -m soil_moisture_sensor.test
+
 - task: Docker@2
   displayName: Build an image
   inputs:
@@ -40,3 +50,13 @@ steps:
     containers: '$(REPOSITORY)/python-dashboard:latest'
     imagePullSecrets: 'docker-hub'
     rolloutStatusTimeout: '30'
+
+- task: GitHubRelease@1
+  inputs:
+    gitHubConnection: 'JackPlowman'
+    repositoryName: 'eperegrine/ECM3440-soil-moisture'
+    action: 'create'
+    target: '$(Build.SourceVersion)'
+    tagSource: 'gitTag'
+    changeLogCompareToRelease: 'lastFullRelease'
+    changeLogType: 'commitBased'
