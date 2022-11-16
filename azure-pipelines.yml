@@ -22,14 +22,15 @@ steps:
     versionSpec: $(pythonVersion)
 
 - task: Bash@3
+  displayName: Unit Tests
   inputs:
     targetType: 'inline'
     script: |
       python -m pip install --upgrade pip
       pip install -r dashboard/requirements.txt
-      python -m dashboard.test
+      python -m unittest dashboard.test
       pip install -r soil_moisture_sensor/requirements.txt
-      python -m soil_moisture_sensor.test
+      python -m unittest soil_moisture_sensor.test
 
 - task: Docker@2
   displayName: Build an image
@@ -42,6 +43,7 @@ steps:
     
 
 - task: KubernetesManifest@0
+  displayName: Kubernetes Deployment
   inputs:
     action: 'deploy'
     kubernetesServiceConnection: 'kube-connection'
