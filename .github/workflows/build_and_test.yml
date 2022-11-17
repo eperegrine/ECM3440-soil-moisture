@@ -24,7 +24,7 @@ jobs:
         pip install pylint
     - name: Analysing the code with pylint
       run: |
-        pylint $(git ls-files '${{matrix.project}}/*.py')
+        pylint --disable=E0401 $(git ls-files '${{matrix.project}}/*.py')
     - name: Running tests with unittest
       run: |
         python -m unittest ${{matrix.project}}.test

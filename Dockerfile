@@ -1,9 +1,8 @@
 FROM python:latest
 
 RUN mkdir /dashboard
-WORKDIR /dashboard
 ADD ./dashboard /dashboard/
-RUN pip install -r requirements.txt
+RUN pip install -r /dashboard/requirements.txt
 
-EXPOSE 8080
+EXPOSE 5001
 CMD ["python", "/dashboard/app.py"]

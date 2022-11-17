@@ -3,8 +3,8 @@
 import os
 import threading
 from dotenv import load_dotenv
-from .core.server import start_server
-from .core.iothub import receive_events_from_iothub
+from core.server import start_server
+from core.iothub import receive_events_from_iothub
 
 load_dotenv()
 
@@ -41,6 +41,5 @@ if __name__ == '__main__':
     server_thread = threading.Thread(target=start_server, args=[get_moisture], daemon=True)
     event_thread.start()
     server_thread.start()
-
-    print("Hello World")
-    input()
+    while True:
+        pass

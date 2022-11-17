@@ -109,7 +109,7 @@ To build the dashboard container, run the command below:
 `docker build . -t $(REPO_NAME)/python-dashboard:latest`
 
 To run the dashboard container, run the command below:
-`docker run -p 127.0.0.1:8080:8080 python-dashboard:latest`
+`docker run -p 127.0.0.1:5001:5001 python-dashboard:latest`
 
 To push to the hub, the command is:
 `docker push $(REPO_NAME)/python-dashboard:latest`
