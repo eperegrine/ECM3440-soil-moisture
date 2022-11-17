@@ -7,15 +7,8 @@ from azure.eventhub import EventHubConsumerClient, EventData
 
 SaveMethod = Callable[[int], Any]
 
-def receive_events_from_iothub(conn_str: str, consumer_group: str, save_moisture: SaveMethod):
-    """
-    connect to and receive events from the eventhub
-    """
-    client = EventHubConsumerClient.from_connection_string(conn_str, consumer_group=consumer_group)
-
-    logging.getLogger("azure.eventhub")
-    logging.basicConfig(level=logging.INFO)
-
+def generate_on_event(save_moisture: SaveMethod) -> Callable[[Any, EventData], Any]:
+    """Generate a method to handle event calls"""
     def on_event(partition_context, event: EventData):
         """Handle messages from the event client"""
         json_body = event.body_as_json()
@@ -30,6 +23,19 @@ def receive_events_from_iothub(conn_str: str, consumer_group: str, save_moisture
             print("-" * 20)
 
         partition_context.update_checkpoint(event)
+
+    return on_event
+
+def receive_events_from_iothub(conn_str: str, consumer_group: str, save_moisture: SaveMethod):
+    """
+    connect to and receive events from the eventhub
+    """
+    client = EventHubConsumerClient.from_connection_string(conn_str, consumer_group=consumer_group)
+
+    logging.getLogger("azure.eventhub")
+    logging.basicConfig(level=logging.INFO)
+
+    on_event = generate_on_event(save_moisture)
 
     with client:
         client.receive(

@@ -3,8 +3,8 @@
 import os
 import threading
 from dotenv import load_dotenv
-from modules.server import start_server
-from modules.iothub import receive_events_from_iothub
+from .core.server import start_server
+from .core.iothub import receive_events_from_iothub
 
 load_dotenv()
 
